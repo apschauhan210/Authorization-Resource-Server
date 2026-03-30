@@ -107,7 +107,7 @@ SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
 | Method | Endpoint  | Description         | Access       |
 | ------ | --------- | ------------------- | ------------ |
-| GET    | `/public` | Public API          | खुला         |
+| GET    | `/public` | Public API          | Public       |
 | GET    | `/secure` | Protected API       | JWT required |
 | GET    | `/admin`  | Admin-only endpoint | Role-based   |
 
