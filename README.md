@@ -1,32 +1,92 @@
-# Authorization Resource Server
+This is much better — now we can make a **high-quality, accurate README** that actually reflects your codebase structure and will impress in interviews.
+# Authorization & Resource Server (Spring Security OAuth2)
 
-A **Spring Boot OAuth2 Resource Server** that validates and protects APIs using JWT tokens issued by an Authorization Server.
+A complete **OAuth2-based authentication and authorization system** built using Spring Boot and Spring Security.
 
-This project demonstrates how to build a secure backend using **Spring Security + OAuth2 Resource Server** concepts.
+This repository demonstrates a **progressive implementation** of OAuth2:
 
----
-
-## 🚀 Features
-
-* 🔐 OAuth2 Resource Server using JWT
-* 🛡️ Secure REST APIs with role-based access
-* 📦 Spring Boot 3 + Spring Security 6
-* 🔑 Token validation using public keys / JWKS
-* ⚙️ Configurable security rules
-* 🧪 Ready for integration with any Authorization Server (Auth Server)
+* 🔐 Authorization Server (In-Memory)
+* 🛡️ Resource Server (JWT Protected APIs)
+* 🗄️ Authorization Server with Database (Production-ready)
 
 ---
 
-## 🧠 Architecture Overview
+## 🚀 Projects Overview
 
-```
-Client → Authorization Server → Access Token (JWT)
-       → Resource Server (this app) → Protected APIs
+### 1️⃣ Authorization Server (In-Memory)
+
+📁 `1. AuthorizationServer`
+
+* Implements OAuth2 Authorization Server
+* Issues JWT tokens
+* Uses **in-memory client & user configuration**
+* Contains:
+
+  * `config/` → Security & OAuth configuration
+
+---
+
+### 2️⃣ Resource Server
+
+📁 `2. ResourceServer`
+
+* Secures REST APIs using JWT tokens
+* Validates tokens issued by Authorization Server
+* Implements role-based access
+
+**Key Packages:**
+
+* `config/` → Security configuration (JWT validation)
+* `controllers/` → Protected REST APIs
+
+---
+
+### 3️⃣ Authorization Server with Database
+
+📁 `3. AuthorizationServerWithDB`
+
+A **production-style Authorization Server** with full layered architecture.
+
+**Key Packages:**
+
+* `config/` → OAuth2 & security configuration
+* `security/` → Custom security logic / filters
+* `controllers/` → API endpoints (auth-related)
+* `services/` → Business logic
+* `repositories/` → Database access (JPA)
+* `entities/` → DB models
+* `dtos/` → Request/response objects
+* `PrimaryKeys/` → Composite keys (if used)
+
+---
+
+## 🧠 System Architecture
+
+```text
+Client
+   ↓
+Authorization Server (JWT Issuer)
+   ↓
+Access Token (JWT)
+   ↓
+Resource Server (JWT Validator)
+   ↓
+Protected APIs
 ```
 
-* The **Authorization Server** issues access tokens
-* The **Resource Server** validates tokens and serves protected resources
-* Tokens are typically validated using **JWKS or introspection** ([Cornucopia][1])
+---
+
+## 🔄 OAuth2 Flow
+
+1. Client sends authentication request
+2. Authorization Server validates credentials
+3. JWT Access Token is issued
+4. Client calls Resource Server APIs with token
+5. Resource Server:
+
+   * Validates JWT signature
+   * Extracts claims/roles
+   * Grants or denies access
 
 ---
 
@@ -34,110 +94,95 @@ Client → Authorization Server → Access Token (JWT)
 
 * Java 17+
 * Spring Boot
-* Spring Security
-* OAuth2 Resource Server
-* Maven / Gradle
+* Spring Security 6
+* Spring Authorization Server
+* OAuth2 & JWT
+* Spring Data JPA (DB module)
+* Maven
 
 ---
 
-## 📂 Project Structure
+## 📂 Detailed Project Structure
 
-```
-src/
- ├── main/
- │   ├── java/
- │   │   └── com.example.authorizationresourceserver
- │   │       ├── config/        # Security configuration
- │   │       ├── controller/    # REST endpoints
- │   │       ├── service/       # Business logic
- │   │       └── model/         # DTOs / entities
- │   └── resources/
- │       └── application.yml   # Configurations
-```
-
----
-
-## ⚙️ Configuration
-
-### application.yml
-
-```yaml
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:9000
-```
-
-OR using JWKS:
-
-```yaml
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://localhost:9000/.well-known/jwks.json
+```text
+.
+├── 1. AuthorizationServer
+│   └── src/main/java/com/springsecurity/authorizationserver
+│       └── config/
+│
+├── 2. ResourceServer
+│   └── src/main/java/com/springsecurity/resourceserver
+│       ├── config/
+│       └── controllers/
+│
+├── 3. AuthorizationServerWithDB
+│   └── src/main/java/com/springsecurity/authorizationserverwithdb
+│       ├── config/
+│       ├── security/
+│       ├── controllers/
+│       ├── services/
+│       ├── repositories/
+│       ├── entities/
+│       ├── dtos/
+│       └── PrimaryKeys/
 ```
 
 ---
 
-## 🔐 Security Configuration
+## ⚙️ Running the Applications
 
-Example:
-
-```java
-@Bean
-SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/public/**").permitAll()
-            .anyRequest().authenticated()
-        )
-        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-
-    return http.build();
-}
-```
-
----
-
-## 📡 API Endpoints
-
-| Method | Endpoint  | Description         | Access       |
-| ------ | --------- | ------------------- | ------------ |
-| GET    | `/public` | Public API          | Public       |
-| GET    | `/secure` | Protected API       | JWT required |
-| GET    | `/admin`  | Admin-only endpoint | Role-based   |
-
----
-
-## ▶️ Running the Application
-
-### 1. Clone the repo
+### 1. Start Authorization Server (In-Memory)
 
 ```bash
-git clone https://github.com/apschauhan210/Authorization-Resource-Server.git
-cd Authorization-Resource-Server
-```
-
-### 2. Run the app
-
-```bash
+cd "1. AuthorizationServer"
 ./mvnw spring-boot:run
 ```
 
 ---
 
-## 🧪 Testing APIs
+### 2. Start Resource Server
 
-Use tools like:
+```bash
+cd "2. ResourceServer"
+./mvnw spring-boot:run
+```
 
-* Postman
-* curl
+---
 
-### Example:
+### 3. Start DB-based Authorization Server
+
+```bash
+cd "3. AuthorizationServerWithDB"
+./mvnw spring-boot:run
+```
+
+---
+
+## 🔐 API Access
+
+### Resource Server Endpoints
+
+| Method | Endpoint  | Description   | Authorization |
+| ------ | --------- | ------------- | ------------- |
+| GET    | `/public` | Public API    | No            |
+| GET    | `/secure` | Protected API | JWT Required  |
+| GET    | `/admin`  | Admin API     | Admin Role    |
+
+---
+
+## 🧪 Testing the Flow
+
+### 1. Get Access Token
+
+```bash
+curl -X POST http://localhost:9000/oauth2/token \
+  -d "grant_type=client_credentials" \
+  -u client:secret
+```
+
+---
+
+### 2. Call Protected API
 
 ```bash
 curl -H "Authorization: Bearer <ACCESS_TOKEN>" \
@@ -146,35 +191,29 @@ http://localhost:8080/secure
 
 ---
 
-## 🔗 Integration with Authorization Server
+## 🔑 Key Concepts Demonstrated
 
-This resource server works with any OAuth2 Authorization Server such as:
-
-* Spring Authorization Server
-* Auth0
-* Keycloak
-
-These servers issue JWT tokens that this service validates.
+* OAuth2 Authorization Server setup
+* JWT token generation & validation
+* Spring Security filter chain
+* Role-based access control
+* In-memory vs database-backed authentication
+* Layered architecture (Controller → Service → Repository → Entity)
 
 ---
 
-## 📌 Key Concepts
+## ⭐ Why This Project Stands Out
 
-* **Resource Server**: Protects APIs and validates tokens
-* **Authorization Server**: Issues access tokens
-* **JWT**: Self-contained token with claims
-* **Scopes & Roles**: Used for access control
+* Covers **end-to-end OAuth2 flow**
+* Shows **evolution from basic → production-ready system**
+* Demonstrates **real-world backend architecture**
+* Includes **secure API design patterns**
 
 ---
 
 ## 🧑‍💻 Author
 
 **Anuj Pratap Singh**
+GitHub: [https://github.com/apschauhan210](https://github.com/apschauhan210)
 
-* GitHub: [https://github.com/apschauhan210](https://github.com/apschauhan210)
 
----
-
-## ⭐ Contribution
-
-Feel free to fork the repo and submit pull requests!
